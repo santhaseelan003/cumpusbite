@@ -20,7 +20,7 @@ else{
   const serviceAccount = require("D:/projectlocal/servicekey2.json");
 } */
 
-const serviceAccount = require("D:/projectlocal/servicekey2.json");
+const serviceAccount = JSON.parse(process.env.FIREBASE_KEY);
 
 
 admin.initializeApp({
