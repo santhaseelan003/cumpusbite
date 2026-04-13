@@ -1,0 +1,44 @@
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    
+</body>
+
+<script>
+    async function checkLogin() {
+    const token = localStorage.getItem("token");
+
+    if (!token) {
+        window.location.href = "/login.html";
+        return;
+    }
+
+    const res = await fetch("/verifyUser", {
+        method: "POST",
+        headers: {
+            "Authorization": "Bearer " + token
+        }
+    });
+
+    const data = await res.json();
+
+    if (data.error) {
+        localStorage.removeItem("token");
+        window.location.href = "/login.html";
+    } else {
+        console.log("User is valid:", data.uid);
+        if (data.isAdmin) {
+            window.location.href = "/adminhome";
+        } else {
+            window.location.href = "/customerhome";
+        }
+    }
+}
+
+checkLogin();
+</script>
+</html>

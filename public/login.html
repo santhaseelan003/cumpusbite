@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Login / Register</title>
+
+<style>
+* { margin:0; padding:0; box-sizing:border-box; font-family:Arial; }
+
+body {
+    height: 100vh;
+    margin: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: whitesmoke;
+    overflow: hidden; /* 🔥 prevents scrolling */
+}
+
+.container {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+}
+input {
+    width: 100%;
+    padding: 12px; /* bigger */
+    margin: 20px 0;
+    border-radius: 8px;
+    border: none;
+    background: #eee;
+}
+
+.box {
+    background: white;
+    padding: 40px; /* 🔥 bigger padding */
+    width: 400px;  /* 🔥 increased width */
+    max-width: 90%; /* responsive */
+    border-radius: 15px;
+    box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+}
+form { display:none; }
+form.active { display:block; }
+
+input {
+    width:100%;
+    padding:10px;
+
+    margin-bottom: 20px;
+    border-radius:8px;
+    border:none;
+    background:#eee;
+}
+
+button {
+    width:100%;
+    margin-top: 20px;
+    padding:10px;
+    border:none;
+    border-radius:20px;
+    background:linear-gradient(to right,#00c6ff,#ff00cc);
+    color:white;
+    cursor:pointer;
+}
+
+.toggle {
+    margin-top:10px;
+    cursor:pointer;
+    color:blue;
+}
+h1
+{
+    margin-bottom: 20px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+    
+
+    <div class="box">
+
+        <!-- LOGIN -->
+         <h1 id="title">Login</h1>
+        <form id="loginForm" class="active">
+            <input id="loginEmail" type="text" placeholder="Email" required>
+            <input id="loginPassword" type="password" placeholder="Password" required>
+            <button type="submit">Login</button>
+        </form>
+
+        <!-- REGISTER -->
+        <form id="registerForm">
+            <input id="regNum" type="text" placeholder="Mobile number" required><br>
+            <input id="regEmail" type="email" placeholder="Email" required><br>
+            <input id="regPassword" type="password" placeholder="Password" required>
+            <button type="submit">Register</button>
+        </form>
+
+        <div class="toggle" id="toggleText">Don't have an account? Sign Up</div>
+
+
+    </div>
+</div>
+
+<script>
+const loginForm = document.getElementById("loginForm");
+const registerForm = document.getElementById("registerForm");
+const toggleText = document.getElementById("toggleText");
+const title = document.getElementById("title");
+
+let isLogin = true;
+
+// 🔄 Toggle
+toggleText.onclick = () => {
+    isLogin = !isLogin;
+
+    loginForm.classList.toggle("active");
+    registerForm.classList.toggle("active");
+
+    title.textContent = isLogin ? "Login" : "Register";
+    toggleText.textContent = isLogin 
+        ? "Don't have an account? Sign Up"
+        : "Already have an account? Login";
+};
+
+
+
+// 🔥 REGISTER
+registerForm.onsubmit = async (e) => {
+    e.preventDefault();
+
+    const name = document.getElementById("regNum").value;
+    const email = document.getElementById("regEmail").value;
+    const password = document.getElementById("regPassword").value;
+
+    const res = await fetch("/register", {
+        method: "POST",
+        headers: {"Content-Type":"application/json"},
+        body: JSON.stringify({ name, email, password })
+    });
+
+    const data = await res.json();
+
+    if(data.uid){
+        
+        alert("Registered successfully");
+        toggleText.click(); // go to login
+    } else {
+        alert(data.error);
+    }
+};
+
+
+
+loginForm.onsubmit = async (e) => {
+    e.preventDefault();
+
+    const email = document.getElementById("loginEmail").value;
+    const password = document.getElementById("loginPassword").value;
+
+    const res = await fetch("/login", {
+        method: "POST",
+        headers: {"Content-Type":"application/json"},
+        body: JSON.stringify({ email, password })
+    });
+
+    const data = await res.json();
+
+    if (data.token) {
+    localStorage.setItem("token", data.token);
+    localStorage.setItem("userId", data.uid);
+    if(email === "admin@gmail.com" && password === "admin123"){
+        window.location.href = "/adminhome";
+    } else {
+        window.location.href = "/customerhome";
+        
+    }
+
+} else {
+    console.log("ERROR:", data);
+
+    alert(data.error?.message || "Login failed");
+}
+};
+window.addEventListener("load", () => {
+    // Set default balance
+    if (localStorage.getItem("balance") === null) {
+        let balance = 2000;
+        localStorage.setItem("balance", JSON.stringify(balance)); // ✅ safe
+        console.log(balance, "Balance");
+    }
+});
+
+</script>
+
+</body>
+</html>

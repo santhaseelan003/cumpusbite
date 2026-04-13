@@ -1,0 +1,635 @@
+<!DOCTYPE html>
+<html lang="en">
+<head onload="renderMenu()">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Campus Bite</title>
+
+    <script src="binn.js"></script>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        #searchInput{
+            background-color: rgba(255, 0, 0, 0);
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+        .header {
+            background: rgba(255,255,255,0.95);
+            padding: 1rem 2rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        .logo {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: #ff6b6b;
+        }
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        .balance {
+            background: #4ecdc4;
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-weight: bold;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+        }
+        .welcome {
+            text-align: center;
+            color: white;
+            margin-bottom: 2rem;
+        }
+        .welcome h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+        }
+        .search-bar {
+            display: flex;
+            max-width: 500px;
+            margin: 0 auto 2rem;
+            background: white;
+            border-radius: 50px;
+            padding: 0.5rem;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        .search-bar input {
+            flex: 1;
+            border: none;
+            padding: 1rem;
+            font-size: 1rem;
+            outline: none;
+        }
+        .search-btn {
+            background: #ff6b6b;
+            color: white;
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: 50px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        .filters {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        .filter-btn {
+            background: rgba(255,255,255,0.2);
+            color: white;
+            border: 2px solid rgba(255,255,255,0.3);
+            padding: 0.7rem 1.5rem;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .filter-btn.active, .filter-btn:hover {
+            background: white;
+            color: #667eea;
+        }
+        .menu-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        .menu-card {
+            background: white;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+            transition: transform 0.3s, box-shadow 0.3s;
+            opacity: 0;
+            transform: translateY(20px);
+            animation: fadeInUp 0.6s forwards;
+        }
+        .menu-card.animate {
+            opacity: 1;
+        }
+        @keyframes fadeInUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        .menu-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.2);
+        }
+        .menu-image {
+            width: 100%;
+            height: 200px;
+            object-fit: contain;
+            background: #eee;
+        }
+        .menu-info {
+            padding: 1.5rem;
+        }
+        .menu-name {
+            font-size: 1.3rem;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+            color: #333;
+        }
+        .menu-desc {
+            color: #666;
+            margin-bottom: 1rem;
+        }
+        .menu-price {
+            font-size: 1.2rem;
+            color: #ff6b6b;
+            font-weight: bold;
+            margin-bottom: 1rem;
+        }
+        .quantity-controls {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+        .qty-btn {
+            background: #eee;
+            border: none;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        .qty-btn:hover {
+            background: #ddd;
+        }
+        .order-btn {
+            width: 100%;
+            background: linear-gradient(135deg, #ff6b6b, #ff8e8e);
+            color: white;
+            border: none;
+            padding: 1rem;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background 0.3s;
+            position: relative;
+        }
+        .order-btn:hover {
+            background: linear-gradient(135deg, #ff5252, #ff6b6b);
+        }
+        .order-btn.loading::after {
+            content: '';
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            top: 50%;
+            left: 50%;
+            margin-left: -10px;
+            margin-top: -10px;
+            border: 2px solid transparent;
+            border-top: 2px solid white;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .cart {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: linear-gradient(135deg, #4ecdc4, #44a08d);
+            color: white;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            cursor: pointer;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            transition: all 0.3s;
+            z-index: 1000;
+        }
+        .cart:hover {
+            transform: scale(1.1);
+        }
+        .cart-panel {
+            position: fixed;
+            bottom: 90px;
+            right: 20px;
+            background: white;
+            min-width: 350px;
+            max-height: 400px;
+            overflow-y: auto;
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+            display: none;
+            padding: 1.5rem;
+            z-index: 3000;
+        }
+        .cart-panel.show {
+            display: block;
+            animation: slideIn 0.3s;
+        }
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .cart-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 0;
+            border-bottom: 1px solid #eee;
+        }
+        .cart-total {
+            font-weight: bold;
+            font-size: 1.2rem;
+            margin-top: 1rem;
+            text-align: center;
+            color: #ff6b6b;
+        }
+        .checkout-btn {
+            width: 100%;
+            background: #4ecdc4;
+            color: white;
+            border: none;
+            padding: 1rem;
+            border-radius: 10px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 1rem;
+        }
+        .no-results {
+            text-align: center;
+            color: white;
+            grid-column: 1 / -1;
+            padding: 2rem;
+        }
+        @media (max-width: 768px) {
+            .header {
+                padding: 1rem;
+                flex-direction: column;
+                gap: 1rem;
+            }
+            .welcome h1 {
+                font-size: 2rem;
+            }
+            .menu-grid {
+                grid-template-columns: 1fr;
+            }
+            .cart-panel {
+                right: 10px;
+                left: 10px;
+                bottom: 80px;
+                min-width: auto;
+            }
+        }
+
+        .orders-overlay{
+    position:fixed;
+    top:0;
+    left:0;
+    width:100%;
+    height:100%;
+    background:rgba(0,0,0,0.6);
+    display:none;
+    justify-content:center;
+    align-items:center;
+    z-index:2000;
+}
+
+.orders-panel{
+    background:white;
+    width:450px;
+    max-height:80vh;
+    overflow-y:auto;
+    border-radius:15px;
+    padding:20px;
+    box-shadow:0 10px 40px rgba(0,0,0,0.3);
+}
+
+.orders-header{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:15px;
+}
+
+.close-btn{
+    border:none;
+    background:#ff6b6b;
+    color:white;
+    padding:6px 12px;
+    border-radius:8px;
+    cursor:pointer;
+}
+
+.order-card{
+    background:#f8f8f8;
+    padding:12px;
+    border-radius:10px;
+    margin-bottom:10px;
+}
+
+.order-food{
+    font-weight:bold;
+}
+
+.order-info{
+    font-size:14px;
+    margin-top:4px;
+}
+
+.status{
+    margin-top:8px;
+    padding:4px 10px;
+    border-radius:15px;
+    display:inline-block;
+    font-weight:bold;
+}
+
+.orders-float {
+    position: fixed;
+    bottom: 90px; /* above cart */
+    right: 20px;
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    cursor: pointer;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+    z-index: 1000;
+    transition: 0.3s;
+}
+
+.orders-float:hover {
+    transform: scale(1.1);
+}
+#logoutBtn {
+    background: #ff4d4d; /* red */
+    color: white;
+    border: none;
+    padding: 10px 16px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: 0.3s;
+
+}
+
+.cart-item button {
+
+    border: none;
+    color: white;
+    padding: 5px 8px;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+
+.cart-item button:hover {
+    background: #e60000;
+}
+
+
+/* hover effect */
+#logoutBtn:hover {
+    background: #e60000;
+    transform: scale(1.05);
+}
+
+/* click effect */
+#logoutBtn:active {
+    transform: scale(0.95);
+}
+
+.preparing{background:#ffe082;}
+.delivered{background:#81c784;}
+.canceled{background:#ef9a9a;}
+    </style>
+</head>
+<body>
+    <header class="header" style="align-items: center;">
+        <div class="logo">🍽️ Campus Bite</div>
+        <div class="user-info" >
+            <span>Balance:</span>
+            <span id="balance">₹250</span>
+
+            <div style="display:flex; gap:10px; align-items:center;">
+   
+    <button id="logoutBtn" onclick="logout()">🚪 Logout</button>
+</div>
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="welcome">
+            <h1>Order your Meals!</h1>
+        </div>
+
+        <div class="search-bar">
+            <input type="text" id="searchInput" placeholder="Search biryani, dosa, idli...">
+            <button class="search-btn" onclick="searchMenu()">🔍</button>
+        </div>
+
+        <div class="filters">
+            <button class="filter-btn active" data-category="all" >All</button>
+            <button class="filter-btn" data-category="veg">Veg</button>
+            <button class="filter-btn" data-category="nonveg">Non-Veg</button>
+            <button class="filter-btn" data-category="snacks">Snacks</button>
+        </div>
+
+        <div class="menu-grid" id="menuGrid">
+        </div>
+
+        <div id="ordersOverlay" class="orders-overlay">
+    <div class="orders-panel">
+
+        <div class="orders-header">
+            <h2>My Orders</h2>
+            <button onclick="closeMyOrders()">❌</button>
+        </div>
+
+        <div id="ordersContainer"></div>
+
+    </div>
+</div>
+ <div class="orders-float" onclick="openMyOrders()">
+    📦
+</div>
+
+    <div class="cart" id="cartBtn" onclick="toggleCart()">
+        🛒 <span id="cartCount">0</span>
+    </div>
+   
+    <div class="cart-panel" id="cartPanel">
+        <h3>Cart</h3>
+        <div id="cartItems"></div>
+        <div class="cart-total" id="cartTotal">₹0</div>
+        <button class="checkout-btn" onclick="checkout()">Checkout & Pay</button>
+    </div>
+
+    <div id="popup" style="
+    position:fixed;
+    top:0; left:0;
+    width:100%; height:100%;
+    background:rgba(0,0,0,0.5);
+    display:none;
+    justify-content:center;
+    align-items:center;
+    z-index:5000;
+">
+    <div style="
+        background:white;
+        padding:25px;
+        border-radius:10px;
+        text-align:center;
+        width:300px;
+    ">
+        <h3>Enter your name</h3>
+        <input id="usernameInput" type="text" placeholder="Your name" 
+               style="width:100%; padding:10px; margin-top:10px;">
+        <br>
+        <button onclick="saveUser()" style="
+            margin-top:15px;
+            padding:10px 20px;
+            background:#4ecdc4;
+            color:white;
+            border:none;
+            border-radius:8px;
+            cursor:pointer;
+        ">Continue</button>
+    </div>
+</div>
+
+<div id="tablePopup" style="
+    position:fixed;
+    top:0; left:0;
+    width:100%; height:100%;
+    background:rgba(0,0,0,0.5);
+    display:none;
+    justify-content:center;
+    align-items:center;
+    z-index:5000;
+">
+    <div style="
+        background:white;
+        padding:25px;
+        border-radius:10px;
+        text-align:center;
+        width:300px;
+    ">
+        <h3>Enter Table Number</h3>
+        <input id="tableInput" type="number" placeholder="Table No"
+               style="width:100%; padding:10px; margin-top:10px;">
+        <br>
+        <button onclick="confirmCheckout()" style="
+            margin-top:15px;
+            padding:10px 20px;
+            background:#4ecdc4;
+            color:white;
+            border:none;
+            border-radius:8px;
+            cursor:pointer;
+        ">Proceed</button>
+    </div>
+</div>
+
+    <script>
+
+        
+
+
+window.addEventListener("load", async () => {
+
+    // 🔐 LOGIN CHECK
+    const token = localStorage.getItem("token");
+    console.log("Token:", token);
+
+    if (!token) {
+        window.location.href = "/login.html";
+        return;
+    }
+
+    try {
+        const res = await fetch("/verifyUser", {
+            method: "POST",
+            headers: {
+                "Authorization": "Bearer " + token
+            }
+        });
+
+        const data = await res.json();
+
+        if (data.error) {
+            localStorage.removeItem("token");
+            window.location.href = "/login.html";
+            return;
+        }
+
+    } catch (err) {
+        console.error("Verify error:", err);
+        window.location.href = "/login.html";
+        return;
+    }
+
+    // 👤 USERNAME CHECK
+    const username = localStorage.getItem("username");
+
+    if (!username) {
+        document.getElementById("popup").style.display = "flex";
+    }
+
+});
+
+function saveUser(){
+    const input = document.getElementById("usernameInput");
+    const username = input.value.trim();
+
+    if(username === ""){
+        alert("Please enter your name");
+        return;
+    }
+
+    localStorage.setItem("username", username);
+
+    document.getElementById("popup").style.display = "none";
+
+    console.log("Username:", username);
+}
+    </script>
+
+    
+</body>
+</html>

@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Food Ordering Admin</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="main.js"></script>
+    <script src="binn.js"></script>
+
+    <style>
+        #logoutBtn
+        {
+            position: absolute;
+            background: #ff4d4d; /* red */
+            color: white;
+            border: none;
+            padding: 10px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: normal;
+            transition: 0.3s;
+            width: 70px;
+            
+        }
+        #logoutBtn:hover {
+            background: #e60000;
+            transform: scale(1.05);
+        }
+
+        /* click effect */
+        #logoutBtn:active {
+            transform: scale(0.95);
+        }
+    </style>
+
+</head>
+
+<body onload="onAdminPanalOpen()">
+
+    <button id="logoutBtn" onclick="logout()">Logout</button>
+    <center>
+        <header>
+            <h1>Admin Dashboard</h1>
+            <nav style="display: flex; flex-direction: row; justify-content: center; gap: 20px;">
+                <a href="#orders" onclick="openOrders()">Orders</a>
+                <a href="#menu" onclick="openMenu()">Menu</a>
+            </nav>
+        </header>
+    </center>
+    <main>
+        
+        <section id="orders">
+            <h2>Pending Orders</h2>
+            <table id="ordersTable">
+                <thead>
+                    <tr>
+                        <th>Table No</th>
+                        <th>Foods</th>
+                        <th>Customer Name</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+        
+                
+            </table>
+            <center>
+            <h4 id = "loading">Loading orders...</h4>
+
+            </center>
+        </section>
+        <section id="menu" style="display: none;">
+            <h2>Menu Management</h2>
+            <table id="foodList">
+                <thead>
+                    <tr>
+                        <th>Item ID</th>
+                        <th>Name</th>
+                        <th>Price</th>
+                        <th>Category</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>1</td>
+                        <td>Fried Rice</td>
+                        <td>80 RS</td>
+                        <td>Main Course</td>
+                        <td><button>Edit</button> <button>Delete</button></td>
+                    </tr>
+                    <tr>
+                        <td>2</td>
+                        <td>chilli Porota</td>
+                        <td>90 RS</td>
+                        <td>Appetizer</td>
+                        <td><button>Edit</button> <button onclick="deleteOrder(1)">Delete</button></td>
+                    </tr>
+                </tbody>
+            </table>
+            <center>
+            <div id="addItemPanel">
+                <h3>Add New Food</h3>
+                <form id="newItemForm">
+                    <input type="text" id="foodName" placeholder="Food Name"><br><br>
+                    <input type="text" id="price" placeholder="Price"><br><br>
+                    <input type="text" id="category" placeholder="Category"><br><br>
+                    <input type="text" id="imgUrl" placeholder="Image URL"><br><br>
+                    <div class="button-group">
+                        <button type="button" onclick="addFood()">Save</button>
+                        <button type="button" onclick="hideAddItemPanel()">Cancel</button>
+                    </div>
+                </form>
+            </div>
+            </center>
+            <button id="addFoodBtn" onclick="showAddItemPanel()">+</button>
+           
+        </section>
+
+         
+    </main>
+    <script>
+window.addEventListener("load", async () => {
+  const token = localStorage.getItem("token");
+
+  if (!token) {
+    window.location.href = "/login.html";
+    return;
+  }
+
+  const res = await fetch("/verifyUser", {
+    method: "POST",
+    headers: {
+      "Authorization": "Bearer " + token
+    }
+  });
+
+  const data = await res.json();
+
+  if (!data.isAdmin) {
+    alert("Access Denied");
+    window.location.href = "/customerhome";
+  }
+});
+    </script>
+</body>
+
+
+<!--
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script src="binn.js"></script>
+</head>
+<body>
+    <button onclick="addFood()">Add food</button>
+
+
+    <input type="number" name="" id="id">
+    <button onclick="deleteFood()">Delete food</button>
+
+    
+    <button onclick="getFoods()">Get food</button>
+
+
+    
+</body>
+</html> -->
