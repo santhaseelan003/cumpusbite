@@ -12,8 +12,16 @@ const app = express();
 
 app.use(express.json());
 
-//const serviceAccount = require("D:/miniproject/servicekey2.json");
-const serviceAccount = JSON.parse(process.env.FIREBASE_KEY);
+/* if(process.env.MODE == "production")
+{
+  const serviceAccount = JSON.parse(process.env.FIREBASE_KEY);
+}
+else{
+  const serviceAccount = require("D:/projectlocal/servicekey2.json");
+} */
+
+const serviceAccount = require("D:/projectlocal/servicekey2.json");
+
 
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount),
