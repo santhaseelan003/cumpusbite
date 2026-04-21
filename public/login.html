@@ -66,6 +66,44 @@ button {
     cursor:pointer;
 }
 
+/* Floating button */
+.dev-btn {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+
+    width: auto;        
+    padding: 8px 14px;    
+    
+    border: none;
+    border-radius: 20px;
+    background: #333;
+    color: white;
+    cursor: pointer;
+    
+    box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+}
+/* Popup */
+.popup {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.6);
+    justify-content: center;
+    align-items: center;
+}
+
+.popup-content {
+    background: white;
+    padding: 25px;
+    border-radius: 12px;
+    text-align: center;
+    width: 300px;
+}
+
 .toggle {
     margin-top:25px;
     cursor:pointer;
@@ -85,6 +123,28 @@ h1
 </head>
 
 <body>
+
+    <button id="devBtn" class="dev-btn">Developer Info</button>
+
+    <div id="devPopup" class="popup">
+    <div class="popup-content">
+        <h2>Developer Info</h2>
+        <br>
+
+        <p><b>Frontend:</b><br>
+        Binnathik<br>
+        Gokul<br>
+        Tamiz<br>
+        Jayasuriya</p>
+        <br>
+
+        <p><b>Backend:</b><br>
+        Santhaseelan</p>
+
+        <button onclick="closePopup()">Close</button>
+    </div>
+</div>
+
      <div id="logo">
         <center>
             <img src="logo.png" alt="Logo" height="200px">
@@ -115,11 +175,24 @@ h1
 
         <div class="toggle" id="toggleText">Don't have an account? Sign Up</div>
 
-
     </div>
 </div>
 
+
 <script>
+
+    const devBtn = document.getElementById("devBtn");
+const devPopup = document.getElementById("devPopup");
+
+devBtn.onclick = () => {
+    devPopup.style.display = "flex";
+};
+
+function closePopup() {
+    devPopup.style.display = "none";
+}
+
+
 const loginForm = document.getElementById("loginForm");
 const registerForm = document.getElementById("registerForm");
 const toggleText = document.getElementById("toggleText");
